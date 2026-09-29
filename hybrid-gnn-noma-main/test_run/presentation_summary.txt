@@ -1,0 +1,95 @@
+====================================================
+GNN-BASED HYBRID NOMA NETWORK
+NETWORK SETUP
+
+Users : 6
+Slots : 3
+Data Source : synthetic
+Train / Val / Test : 200 / 40 / 50
+
+
+1. DATA PREPARATION
+
+Features used : x, y, distance, channel_gain, channel_gain_db, snr_db, min_rate_req_bps
+Preprocessing : Feature pipeline + StandardScaler
+Data preparation : Completed
+
+
+1. ML MODEL RESULTS
+
+MODEL PERFORMANCE
+Linear Regression R² = 0.9106
+Random Forest R² = 0.9994
+GNN Rate = 16.51 Mbps
+
+GNN TRAINING
+Epochs : 2
+Best Validation Loss : 1.4056
+Best Epoch : 2
+Test Performance : 16.51 Mbps total rate | 2.75 Mbps average user rate
+
+
+1. GNN USER PAIRING
+
+PAIR USERS SLOT METHOD
+1. U2 and U5 -> Slot 1 -> PD-NOMA
+2. U1 and U4 -> Slot 2 -> PD-NOMA
+3. U0 and U3 -> Slot 1 -> PD-NOMA
+
+Pairing source : GNN
+Slot assignment : GNN slot prediction with deterministic capacity-aware resolution
+
+
+1. COMMUNICATION PERFORMANCE
+
+PAIRING / RESOURCE ALLOCATION
+
+Method            Rate      Fairness  Outage
+OMA                19.90 Mbps    0.347   50.33%
+Random Pairing     15.64 Mbps    0.594    1.67%
+Near-Far Pairing   15.80 Mbps    0.550    1.00%
+Greedy Pairing     16.66 Mbps    0.522    5.33%
+Optimization Reference   17.00 Mbps    0.547    1.33%
+GNN Pairing        16.51 Mbps    0.542    4.67%
+
+PD-NOMA
+Average Pair Rate : 5.88 Mbps
+SIC : Enabled
+
+
+SCMA PERFORMANCE
+
+SNR     BER      SER      Data Rate
+  -5 dB   0.4342   0.6400     3.95 Mbps
+   0 dB   0.3717   0.5433     9.56 Mbps
+   5 dB   0.2942   0.4200    18.06 Mbps
+  10 dB   0.1625   0.2450    26.24 Mbps
+  15 dB   0.0417   0.0600    31.39 Mbps
+  20 dB   0.0033   0.0050    33.75 Mbps
+
+SCMA evaluation : Standalone SCMA experiment preserved; hybrid schedule may select SCMA per slot
+
+
+1. FINAL SUMMARY
+
+GNN benchmark rate : 16.51 Mbps
+Reference rate : 17.00 Mbps
+Average user rate : 2.75 Mbps
+Fairness : 0.542
+Outage : 4.67%
+
+ML models evaluated : Linear Regression, Random Forest, GNN
+Pairing methods : Random, Near-Far, Greedy, Optimization, GNN
+Communication methods : OMA, PD-NOMA, SCMA
+
+Result:
+GNN was trained to learn user-pairing patterns
+from wireless network data.
+
+Note:
+The GNN slot-preference head drives the final slot assignment through deterministic conflict resolution and slot-capacity checks.
+
+PD-NOMA and SCMA are integrated in the hybrid scheduler: each allocation chooses the feasible communication mode that best matches the slot conditions.
+
+Results saved successfully.
+====================================================
