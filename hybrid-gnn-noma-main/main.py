@@ -493,6 +493,18 @@ def main():
     scma_plot_path = visualizer.plot_scma_ber_curve(scma_results, filename="scma_ber_curve.png")
     if detailed:
         print(f"Saved SCMA BER curve to: {scma_plot_path}")
+    method_ber_paths = visualizer.plot_method_ber_curves(evaluator.method_ber_curves)
+    method_ber_rows = [
+        {"method": method_name, **point}
+        for method_name, points in evaluator.method_ber_curves.items()
+        for point in points
+    ]
+    method_ber_csv_path = str(metrics_dir / "method_ber_results.csv")
+    save_dataframe_csv(pd.DataFrame(method_ber_rows), method_ber_csv_path)
+    if detailed:
+        for method_name, plot_path in method_ber_paths.items():
+            print(f"Saved {method_name} BER curve to: {plot_path}")
+        print(f"Saved method BER data to: {method_ber_csv_path}")
 
     # 6. Generate Topology & Benchmark Plots
     if detailed:
