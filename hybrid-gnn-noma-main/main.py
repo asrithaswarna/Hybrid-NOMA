@@ -230,15 +230,19 @@ def format_simple_summary(num_users, num_slots, seed, epochs, train_samples, val
         "",
         "PAIRING / RESOURCE ALLOCATION",
         "",
-        "Method            Rate      Fairness  Outage",
+        "Method            Rate      F1      Fairness  Outage",
     ])
 
     for row in benchmark_rows:
         method_label = _simple_method_name(row.get("method", ""))
         rate = float(row.get("total_rate_mbps", 0.0))
         fairness_val = float(row.get("fairness", 0.0))
+        f1_score = float(row.get("pairing_f1_score_mean", 0.0))
         outage_val = float(row.get("outage_percent", row.get("outage_probability_mean", 0.0) * 100.0))
-        lines.append(f"{method_label:<16} {rate:>7.2f} Mbps  {fairness_val:>7.3f}  {outage_val:>6.2f}%")
+        lines.append(
+            f"{method_label:<16} {rate:>7.2f} Mbps  {f1_score:>5.3f}  "
+            f"{fairness_val:>7.3f}  {outage_val:>6.2f}%"
+        )
 
     lines.extend([
         "",
@@ -461,6 +465,7 @@ def main():
         print("=" * 110)
     display_cols = [
         "method_name",
+        "pairing_f1_score_mean",
         "sum_rate_mean_mbps",
         "sum_rate_std_mbps",
         "user_rate_mean_mbps",
@@ -571,6 +576,7 @@ def main():
         benchmark_rows = [
             {
                 "method": method_name,
+                "pairing_f1_score_mean": float(metrics.pairing_f1_score_mean),
                 "total_rate_mbps": float(metrics.sum_rate_mean_mbps),
                 "avg_rate_mbps": float(metrics.user_rate_mean_mbps),
                 "fairness": float(metrics.jains_fairness_mean),

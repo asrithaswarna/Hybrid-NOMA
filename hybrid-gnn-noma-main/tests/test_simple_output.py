@@ -37,8 +37,8 @@ def test_simple_output_summary_contains_key_labels():
             }
         ],
         benchmark_rows=[
-            {"method": "Orthogonal Multiple Access (OMA)", "total_rate_mbps": 10.0, "avg_rate_mbps": 1.67, "fairness": 0.500, "outage_percent": 50.33},
-            {"method": "Proposed GNN-Based NOMA", "total_rate_mbps": 12.34, "avg_rate_mbps": 2.06, "fairness": 0.720, "outage_percent": 6.50},
+            {"method": "Orthogonal Multiple Access (OMA)", "total_rate_mbps": 10.0, "avg_rate_mbps": 1.67, "pairing_f1_score_mean": 0.0, "fairness": 0.500, "outage_percent": 50.33},
+            {"method": "Proposed GNN-Based NOMA", "total_rate_mbps": 12.34, "avg_rate_mbps": 2.06, "pairing_f1_score_mean": 0.75, "fairness": 0.720, "outage_percent": 6.50},
         ],
         scma_rows=[{"snr_db": 0, "ber": 0.25, "ser": 0.4, "rate_mbps": 9.5}],
         reference_method={"total_rate_mbps": 13.0},
@@ -70,6 +70,8 @@ def test_simple_output_summary_contains_key_labels():
     assert "Slot assignment : GNN slot prediction with deterministic capacity-aware resolution" in summary
     assert "1. COMMUNICATION PERFORMANCE" in summary
     assert "PAIRING / RESOURCE ALLOCATION" in summary
+    assert "F1" in summary
+    assert "0.750" in summary
     assert "PD-NOMA" in summary
     assert "SIC : Enabled" in summary
     assert "SCMA PERFORMANCE" in summary

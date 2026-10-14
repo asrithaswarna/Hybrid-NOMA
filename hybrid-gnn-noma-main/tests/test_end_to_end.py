@@ -71,8 +71,34 @@ def test_small_end_to_end_pipeline():
     assert "Proposed GNN-Based NOMA" in benchmark
     assert "Optimization Oracle" in benchmark
     assert "Orthogonal Multiple Access (OMA)" in benchmark
+    assert len(evaluator.method_ber_curves["Proposed GNN-Based NOMA"]) == 6
+    assert all(
+        0.0 <= point["ber"] <= 1.0
+        for curve in evaluator.method_ber_curves.values()
+        for point in curve
+    )
 
     for name, metric in benchmark.items():
         assert metric.sum_rate_mean_mbps > 0.0
+        assert 0.0 <= metric.pairing_f1_score_mean <= 1.0
         assert 0.0 <= metric.jains_fairness_mean <= 1.0
         assert metric.validity_rate == 100.0
+    assert benchmark["Optimization Oracle"].pairing_f1_score_mean == 1.0
+    assert "pairing_f1_score_mean" in evaluator.to_dataframe(benchmark).columns
+
+
+def test_pairing_f1_score_uses_undirected_pairs():
+    from src.pairing import PairingPlan, UserPair
+
+    reference = PairingPlan(
+        pairs=[UserPair(0, 1), UserPair(2, 3)],
+        unpaired_users=[],
+        method_name="reference",
+    )
+    predicted = PairingPlan(
+        pairs=[UserPair(1, 0), UserPair(2, 4)],
+        unpaired_users=[3],
+        method_name="predicted",
+    )
+
+    assert NetworkEvaluator._pairing_f1_score(predicted, reference) == 0.5

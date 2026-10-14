@@ -1,0 +1,9 @@
+model,candidate,mean_cv_mae_mbps,std_cv_mae_mbps,params
+Ridge Regression,1,1.4063328228751732,0.09733268196828358,"{""model__alpha"": 0.01}"
+Ridge Regression,2,1.403064366634258,0.07687358079410428,"{""model__alpha"": 100.0}"
+Ridge Regression,3,1.406333769646898,0.09733501154871839,"{""model__alpha"": 0.001}"
+Ridge Regression,4,3.5765834064073574,0.09494918186159222,"{""model__alpha"": 10000.0}"
+Random Forest,1,0.04070290776662753,0.015250343787624096,"{""model__max_depth"": 8, ""model__min_samples_leaf"": 1, ""model__min_samples_split"": 2, ""model__n_estimators"": 25}"
+Random Forest,2,0.0363783256595761,0.015616655805899578,"{""model__max_depth"": 16, ""model__min_samples_leaf"": 1, ""model__min_samples_split"": 2, ""model__n_estimators"": 25}"
+Random Forest,3,0.0363783256595761,0.015616655805899578,"{""model__max_depth"": null, ""model__min_samples_leaf"": 1, ""model__min_samples_split"": 2, ""model__n_estimators"": 25}"
+Random Forest,4,0.047276640672935105,0.01968503322800691,"{""model__max_depth"": 16, ""model__min_samples_leaf"": 1, ""model__min_samples_split"": 5, ""model__n_estimators"": 25}"

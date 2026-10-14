@@ -175,45 +175,45 @@ class Visualizer:
         metrics: Dict[str, MethodBenchmarkMetrics],
         filename: str = "sum_rate_benchmark.png",
     ) -> str:
-        """Plots bar chart comparing Sum Rate and Jain's Fairness across algorithms."""
+        """Plots sum rate, Jain's fairness, and outage probability by algorithm."""
         methods = list(metrics.keys())
         # Shorten method names for clean x-axis
         labels = [m.replace("Orthogonal Multiple Access (OMA)", "OMA").replace("PD-NOMA", "NOMA").replace("Channel Gain", "Gain") for m in methods]
         sum_rates = [metrics[m].sum_rate_mean_mbps for m in methods]
         sum_stds = [metrics[m].sum_rate_std_mbps for m in methods]
         fairness = [metrics[m].jains_fairness_mean for m in methods]
+        outages = [metrics[m].outage_probability_mean for m in methods]
 
         x = np.arange(len(labels))
-        width = 0.35
+        width = 0.24
 
-        fig, ax1 = plt.subplots(figsize=(10, 6))
+        fig, ax1 = plt.subplots(figsize=(11, 6))
 
         # Bar chart for Sum Rate
-        bars = ax1.bar(x - width/2, sum_rates, width, yerr=sum_stds, capsize=5, label="Sum Rate (Mbps)", color="#1f77b4", alpha=0.85)
+        bars = ax1.bar(x - width, sum_rates, width, yerr=sum_stds, capsize=5, label="Sum Rate (Mbps)", color="#1f77b4", alpha=0.85)
         ax1.set_ylabel("Network Sum Rate (Mbps)", color="#1f77b4", fontweight="bold")
         ax1.tick_params(axis="y", labelcolor="#1f77b4")
         ax1.set_xticks(x)
         ax1.set_xticklabels(labels, rotation=20, ha="right", fontweight="bold")
 
-        # Secondary y-axis for Jain's Fairness
+        # Fairness and outage are both probabilities on the secondary 0-1 axis.
         ax2 = ax1.twinx()
-        bars2 = ax2.bar(x + width/2, fairness, width, label="Jain's Fairness", color="#2ca02c", alpha=0.85)
-        ax2.set_ylabel("Jain's Fairness Index", color="#2ca02c", fontweight="bold")
-        ax2.tick_params(axis="y", labelcolor="#2ca02c")
+        bars2 = ax2.bar(x, fairness, width, label="Jain's Fairness", color="#2ca02c", alpha=0.85)
+        bars3 = ax2.bar(x + width, outages, width, label="Outage Probability", color="#ff7f0e", alpha=0.85)
+        ax2.set_ylabel("Fairness / Outage Probability", fontweight="bold")
         ax2.set_ylim(0, 1.1)
 
         # Annotate values
-        for bar in bars:
+        for bar in [*bars, *bars2, *bars3]:
             height = bar.get_height()
-            ax1.annotate(f"{height:.2f}", xy=(bar.get_x() + bar.get_width() / 2, height),
+            axis = ax1 if bar in bars else ax2
+            axis.annotate(f"{height:.2f}", xy=(bar.get_x() + bar.get_width() / 2, height),
                          xytext=(0, 3), textcoords="offset points", ha="center", va="bottom", fontsize=8)
 
-        for bar in bars2:
-            height = bar.get_height()
-            ax2.annotate(f"{height:.2f}", xy=(bar.get_x() + bar.get_width() / 2, height),
-                         xytext=(0, 3), textcoords="offset points", ha="center", va="bottom", fontsize=8)
-
-        plt.title("Comparative Performance: Sum-Rate vs. Jain's Fairness Index", fontweight="bold")
+        handles1, labels1 = ax1.get_legend_handles_labels()
+        handles2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(handles1 + handles2, labels1 + labels2, loc="upper left")
+        ax1.set_title("Comparative Performance: Sum-Rate, Fairness, and Outage", fontweight="bold")
         fig.tight_layout()
 
         out_path = self.output_dir / filename
@@ -228,17 +228,13 @@ class Visualizer:
     ) -> str:
         """Plots SCMA Message Passing Algorithm (MPA) BER vs SNR curve."""
         snrs = [r.snr_db for r in scma_results]
-        bers = [max(r.bit_error_rate, 1e-4) for r in scma_results]
-        sers = [max(r.symbol_error_rate, 1e-4) for r in scma_results]
+        bers = [r.bit_error_rate for r in scma_results]
 
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.semilogy(snrs, sers, "s--", color="#ff7f0e", linewidth=2, label="Symbol Error Rate (SER)")
-        ax.semilogy(snrs, bers, "o-", color="#d62728", linewidth=2, label="Bit Error Rate (BER)")
-        ax.set_title("SCMA MPA Detector Error Rate vs. Transmit SNR (150% Overloading)")
-        ax.set_xlabel("Signal-to-Noise Ratio (dB)")
-        ax.set_ylabel("Error Probability (Log Scale)")
-        ax.set_ylim(5e-5, 1.0)
-        ax.legend()
+        ax.plot(snrs, bers, "o-", color="#d62728", linewidth=2, label="BER")
+        ax.set_title("SCMA BER Curve")
+        ax.set_xlabel("SNR (dB)")
+        ax.set_ylabel("BER")
         ax.grid(True, which="both", linestyle=":", alpha=0.6)
         fig.tight_layout()
 
@@ -246,3 +242,36 @@ class Visualizer:
         fig.savefig(out_path, dpi=300)
         self._show_if_possible(fig, str(out_path))
         return str(out_path)
+
+    def plot_method_ber_curves(
+        self,
+        ber_results: Dict[str, List[Dict[str, float]]],
+    ) -> Dict[str, str]:
+        """Save an independent BER-vs-SNR figure for each pairing method."""
+        plot_specs = {
+            "Random Pairing PD-NOMA": ("Random Pairing vs BER", "random_pairing_ber.png"),
+            "Near-Far Channel Gain NOMA": ("Near-Far vs BER", "near_far_ber.png"),
+            "Greedy Sum-Rate NOMA": ("Greedy Sum-Rate vs BER", "greedy_sum_rate_ber.png"),
+            "Optimization Oracle": ("Optimization vs BER", "optimization_ber.png"),
+            "Proposed GNN-Based NOMA": ("GNN vs BER", "gnn_ber.png"),
+        }
+        paths: Dict[str, str] = {}
+        for method_name, (title, filename) in plot_specs.items():
+            points = ber_results.get(method_name)
+            if not points:
+                continue
+            snrs = [point["snr_db"] for point in points]
+            bers = [point["ber"] for point in points]
+            fig, ax = plt.subplots(figsize=(8, 5))
+            ax.plot(snrs, bers, "o-", linewidth=2, label="BER")
+            ax.set_title(title)
+            ax.set_xlabel("SNR (dB)")
+            ax.set_ylabel("BER")
+            ax.grid(True, linestyle=":", alpha=0.6)
+            fig.tight_layout()
+
+            out_path = self.output_dir / filename
+            fig.savefig(out_path, dpi=300)
+            self._show_if_possible(fig, str(out_path))
+            paths[method_name] = str(out_path)
+        return paths

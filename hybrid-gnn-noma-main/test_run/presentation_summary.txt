@@ -46,7 +46,7 @@ PAIRING / RESOURCE ALLOCATION
 
 Method            Rate      Fairness  Outage
 OMA                19.90 Mbps    0.347   50.33%
-Random Pairing     15.64 Mbps    0.594    1.67%
+Random Pairing     15.45 Mbps    0.601    1.00%
 Near-Far Pairing   15.80 Mbps    0.550    1.00%
 Greedy Pairing     16.66 Mbps    0.522    5.33%
 Optimization Reference   17.00 Mbps    0.547    1.33%

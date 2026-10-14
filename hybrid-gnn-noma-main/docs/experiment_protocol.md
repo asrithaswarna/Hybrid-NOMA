@@ -71,6 +71,13 @@ python -m pytest tests/ -v
    Runtime per network topology instance measured via high-resolution performance timers.
 8. **Pairing Validity Rate ($\%$)**:
    Percentage of produced pairings satisfying all hard physical constraints (must equal 100.0%).
+9. **Pairing F1 Score**:
+   For each test topology, compare the method's set of undirected user pairs with
+   the optimization oracle's pairs. Compute
+   $$F_1 = \frac{2TP}{|P_{\mathrm{pred}}| + |P_{\mathrm{oracle}}|},$$
+   where $TP$ is the number of exactly matching pairs, then report the mean
+   across test topologies. This evaluates agreement with the oracle labels;
+   communication performance is measured separately by the wireless metrics.
 
 ---
 
@@ -81,6 +88,6 @@ Running the experiment produces the following structured outputs in `results/`:
 - `results/figures/training_loss_curves.png`: Training and validation loss convergence curves.
 - `results/figures/sum_rate_benchmark.png`: Bar chart comparing Sum Rate and Jain's Fairness.
 - `results/figures/scma_ber_curve.png`: Semilogy BER/SER curves for SCMA MPA detector across SNRs.
-- `results/metrics/benchmark_results.csv`: Complete numerical metrics across all tested methods.
+- `results/metrics/benchmark_results.csv`: Complete numerical metrics across all tested methods, including mean pairing F1 against the per-scenario optimization-oracle pairs.
 - `results/metrics/summary.json`: JSON metadata including hyperparameter records and performance aggregates.
 - `results/best_gnn_model.pt`: Checkpoint of best GNN model weights.

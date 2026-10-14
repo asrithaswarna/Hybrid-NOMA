@@ -68,9 +68,16 @@ The complete pipeline of the proposed Graph Neural Network-Based Dynamic User Pa
 |  - Slot Capacity Enforcement (<= 1 Pair per Slot)           |
 |  - Power Allocation: Weak (75%), Strong (25%)               |
 |  - Imperfect SIC Receiver Evaluation                        |
-|  - Benchmark Metrics: Sum-Rate, Jain's Fairness, Outage     |
+|  - Benchmark Metrics: Pairing F1, Sum-Rate, Jain's Fairness, Outage |
 +-------------------------------------------------------------+
 ```
+
+Pairing F1 is computed per test scenario by comparing each method's undirected
+user-pair set with that scenario's optimization-oracle pair set, then reporting
+the mean F1 across scenarios. A pair is a true positive only when both users
+match the same oracle pair; pair orientation does not matter. This measures
+agreement with oracle supervision, not communication quality (which is assessed
+separately with rate, fairness, outage, and BER metrics).
 
 ---
 
